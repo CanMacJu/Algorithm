@@ -7,6 +7,54 @@ void Player::Init(Board* board)
 	_pos = board->GetEnterPos();
 	_board = board;
 
+	//RightHand();
+	Bfs();
+	
+}
+
+void Player::Update(uint64 deltaTick)
+{
+	if (_pathIndex >= _path.size())
+		return;
+
+	if (_sumTick >= MOVE_TICK)
+	{
+		SetPos(_path[_pathIndex]);
+		_pathIndex++;
+
+		_sumTick = 0;
+	}
+	else
+	{
+		_sumTick += deltaTick;
+	}
+
+	/*if (_pathStack.empty())
+		return;
+
+	if (_sumTick >= MOVE_TICK)
+	{
+		Pos pos = _pathStack.top();
+		_pathStack.pop();
+
+		SetPos(pos);
+
+		_sumTick = 0;
+	}
+	else
+	{
+		_sumTick += deltaTick;
+	}*/
+}
+
+bool Player::CanGo(Pos pos)
+{
+	TileType tileType = _board->GetTileType(pos);
+	return tileType == TileType::EMPTY;
+}
+
+void Player::RightHand()
+{
 	Pos pos = _pos;
 
 	while (_path.empty() == false)
@@ -16,7 +64,7 @@ void Player::Init(Board* board)
 	_path.push_back(pos);
 
 	// 목적지 도착하기 전에는 계속 실행
-	Pos dest = board->GetExitPos();
+	Pos dest = _board->GetExitPos();
 
 	Pos front[DIR_COUNT] = { Pos{-1, 0}, Pos{0, -1}, Pos{1, 0}, Pos{0, 1} };
 	Pos right[DIR_COUNT] = { Pos{0, 1}, Pos{-1, 0}, Pos{0, -1}, Pos{1, 0} };
@@ -71,23 +119,81 @@ void Player::Init(Board* board)
 
 	std::reverse(q.begin(), q.end());
 
-	_path = q; 
+	_path = q;
 }
 
-void Player::Update(uint64 deltaTick)
+void Player::Bfs()
 {
-	if (_pathIndex >= _path.size())
-		return;
+	Pos pos = _pos;
 
-	if (_sumTick >= MOVE_TICK)
-	{
-		SetPos(_path[_pathIndex]);
-		_pathIndex++;
+	// 목적지 도착하기 전에는 계속 실행
+	Pos dest = _board->GetExitPos();
 
-		_sumTick = 0;
-	}
-	else
+	Pos front[DIR_COUNT] = { Pos{-1, 0}, Pos{0, -1}, Pos{1, 0}, Pos{0, 1} };
+	Pos right[DIR_COUNT] = { Pos{0, 1}, Pos{-1, 0}, Pos{0, -1}, Pos{1, 0} };
+
+	const int32 size = _board->GetSize();
+	vector<vector<bool>> discovered(size, vector<bool>(size, false));
+	map<Pos, Pos> parent;
+
+	queue<Pos> q;
+
+	q.push(pos);
+	discovered[pos.y][pos.x] = true;
+	parent[pos] = pos;
+
+	while (q.empty() == false)
 	{
-		_sumTick += deltaTick;
+		pos = q.front();
+		q.pop();
+
+		// 방문
+		if (pos == dest)
+		{
+			break;
+		}
+
+		for (int32 dir = 0; dir < 4; ++dir)
+		{
+			Pos nextPos = pos + front[dir];
+			if (discovered[nextPos.y][nextPos.x])
+			{
+				continue;
+			}
+			if (CanGo(nextPos) == false)
+			{
+				continue;
+			}
+
+			q.push(nextPos);
+			discovered[nextPos.y][nextPos.x] = true;
+			parent[nextPos] = pos;
+		}
+
 	}
+
+	/*while (parent[pos] != pos)
+	{
+		_pathStack.push(pos);
+		pos = parent[pos];
+	}
+	_pathStack.push(pos);*/
+
+	_path.clear();
+
+	pos = dest;
+	while (true)
+	{
+		_path.push_back(pos);
+		if (parent[pos] == pos)
+		{
+			break;
+		}
+
+		pos = parent[pos];
+	}
+
+	std::reverse(_path.begin(), _path.end());
+
+
 }

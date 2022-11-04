@@ -16,6 +16,12 @@ public:
 
 	void SetPos(Pos pos) { _pos = pos; };
 	Pos GetPos() { return _pos; };
+	bool CanGo(Pos pos);
+
+private:
+
+	void RightHand();
+	void Bfs();
 
 private:
 	Pos _pos = {};
@@ -23,6 +29,7 @@ private:
 	Board* _board = nullptr;
 
 	vector<Pos> _path;
+	stack<Pos> _pathStack;
 	int _pathIndex = 0;
 	uint64 _sumTick = 0;
 };
