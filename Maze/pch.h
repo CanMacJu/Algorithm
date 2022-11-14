@@ -54,6 +54,8 @@ enum Dir
 	DIR_LEFT = 1,
 	DIR_DOWN = 2,
 	DIR_RIGHT = 3,
-
-	DIR_COUNT = 4
+	DIR_UP_LEFT = 4,
+	DIR_DOWN_LEFT = 5,
+	DIR_DOWN_RIGHT = 6,
+	DIR_UP_RIGHT = 7,
 };
