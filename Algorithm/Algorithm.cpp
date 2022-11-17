@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <map>
 #include "BinarySearchTree.h"
+#include <thread>
 
 using namespace std;
 
@@ -17,27 +18,36 @@ int main()
 {
 	BinarySearchTree bst;
 	bst.Insert(30);
-	bst.Insert(20);
-	bst.Insert(10);
-	bst.Insert(40);
-	bst.Insert(50);
-	bst.Insert(53);
-	bst.Insert(15);
-	bst.Insert(36);
-	bst.Insert(38);
-	bst.Insert(25);
-
-	bst.Delete(30);
-
 	bst.Print();
+	this_thread::sleep_for(1s);
 
-	cout << endl;
-	cout << endl;
-	cout << endl;
-	cout << endl;
-	cout << bst.Max()->key << endl;
-	cout << bst.Min()->key << endl;
-	cout << bst.Next()->key << endl;
+	bst.Insert(10);
+	bst.Print();
+	this_thread::sleep_for(1s);
+
+	bst.Insert(20);
+	bst.Print();
+	this_thread::sleep_for(1s);
+
+	bst.Insert(25);
+	bst.Print();
+	this_thread::sleep_for(1s);
+
+	bst.Insert(40);
+	bst.Print();
+	this_thread::sleep_for(1s);
+
+	bst.Insert(50);
+	bst.Print();
+	this_thread::sleep_for(1s);
+
+	bst.Insert(41);
+	bst.Print();
+	this_thread::sleep_for(1s);
+
+	bst.Insert(42);
+	bst.Print();
+	this_thread::sleep_for(1s);
 
 	return 0;
 }
