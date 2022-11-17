@@ -159,8 +159,8 @@ void BinarySearchTree::Insert(int key)
 
 void BinarySearchTree::Delete(int key)
 {
-	Node* node = Search(_root, key);
-	Delete(node);
+	Node* deleteNode = Search(_root, key);
+	Delete(deleteNode);
 }
 
 void BinarySearchTree::Delete(Node* node)
@@ -168,53 +168,43 @@ void BinarySearchTree::Delete(Node* node)
 	if (node == nullptr)
 		return;
 
-	if (node->left && node->right)
+	if (node->left == nullptr)
 	{
-		Node* nextNode = Next(node);
-
-		std::swap(node->key, nextNode->key);
-		Delete(nextNode);
-		return;
+		Replace(node, node->right);
 	}
-
-	Node* parent = node->parent;
-
-	if (node->left)
+	else if (node->right == nullptr)
 	{
-		if (parent->left == node)
-		{
-			parent->left = node->left;
-			node->left->parent = parent;
-		}
-		else if (parent->right == node)
-		{
-			parent->right = node->left;
-			node->left->parent = parent;
-		}
-	}
-	else if (node->right)
-	{
-		if (parent->left == node)
-		{
-			parent->left = node->right;
-			node->right->parent = parent;
-		}
-		else if (parent->right == node)
-		{
-			parent->right = node->right;
-			node->right->parent = parent;
-		}
+		Replace(node, node->left);
 	}
 	else
 	{
-		if (parent->left == node)
-		{
-			parent->left = nullptr;
-		}
-		else if (parent->right == node)
-		{
-			parent->right = nullptr;
-		}
+		Node* next = Next(node);
+		node->key = next->key;
+		Delete(next);
 	}
-	delete node;
+}
+
+// u 서브트리를 v 서브트리로 교체 후 delete u
+void BinarySearchTree::Replace(Node* u, Node* v)
+{
+	Node* parent = u->parent;
+	if (parent == nullptr)
+	{
+		_root = v;
+	}
+	else if ( parent->left == u)
+	{
+		parent->left = v;
+	}
+	else
+	{
+		parent->right = v;
+	}
+
+	if (v)
+	{
+		v->parent = parent;
+	}
+
+	delete u;
 }
