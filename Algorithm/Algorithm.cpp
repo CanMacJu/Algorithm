@@ -6,53 +6,38 @@
 #include <queue>
 #include <algorithm>
 #include <map>
+#include "BinarySearchTree.h"
 
 using namespace std;
 
 // 이진 탐색 트리
 
 
-
-// 이진 탐색 (binary search)
-// 
-
-vector<int> numbers;
-
-void BinarySearch(int N)
-{
-	int right = (int)numbers.size() - 1;
-	int left = 0;
-
-	int cost = 1;
-
-	while (left <= right)
-	{
-		int mid = (left + right) / 2;
-
-		if (N < numbers[mid])
-		{
-			right = mid - 1;
-			cost++;
-		}
-		else if (N > numbers[mid])
-		{
-			left = mid + 1;
-			cost++;
-		}
-		else
-		{
-			cout << cost << "번 만에 찾음" << endl;
-			return;
-		}
-	}
-
-	cout << "존재 하지 않음" << endl;
-}
-
 int main()
 {
-	numbers = vector<int>{ 1, 8, 15, 23, 32, 44, 56, 63, 81, 91, 100, 102, 103, 105, 106, 109};
-	BinarySearch(1);
+	BinarySearchTree bst;
+	bst.Insert(30);
+	bst.Insert(20);
+	bst.Insert(10);
+	bst.Insert(40);
+	bst.Insert(50);
+	bst.Insert(53);
+	bst.Insert(15);
+	bst.Insert(36);
+	bst.Insert(38);
+	bst.Insert(25);
+
+	bst.Delete(30);
+
+	bst.Print();
+
+	cout << endl;
+	cout << endl;
+	cout << endl;
+	cout << endl;
+	cout << bst.Max()->key << endl;
+	cout << bst.Min()->key << endl;
+	cout << bst.Next()->key << endl;
 
 	return 0;
 }
