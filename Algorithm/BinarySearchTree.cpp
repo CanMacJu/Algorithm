@@ -28,6 +28,15 @@ void SetCursorPosition(int x, int y)
 	::SetConsoleCursorPosition(output, pos);
 }
 
+void ShowConsoleCursor(bool flag)
+{
+	HANDLE output = ::GetStdHandle(STD_OUTPUT_HANDLE);
+	CONSOLE_CURSOR_INFO cursorInfo;
+	::GetConsoleCursorInfo(output, &cursorInfo);
+	cursorInfo.bVisible = flag;
+	::SetConsoleCursorInfo(output, &cursorInfo);
+}
+
 BinarySearchTree::BinarySearchTree()
 {
 	_nil = new Node();
@@ -37,6 +46,13 @@ BinarySearchTree::BinarySearchTree()
 BinarySearchTree::~BinarySearchTree()
 {
 	delete _nil;
+}
+
+void BinarySearchTree::Print()
+{
+	::system("cls");
+	ShowConsoleCursor(false);
+	{ Print(_root, 10, 0); }
 }
 
 void BinarySearchTree::Print(Node* node, int x, int y)
@@ -254,30 +270,119 @@ void BinarySearchTree::Delete(int key)
 
 void BinarySearchTree::Delete(Node* node)
 {
-	if (node == nullptr)
+	if (node == _nil)
 		return;
 
-	if (node->left == nullptr)
+	if (node->left == _nil)
 	{
+		Color color = node->color;
+		Node* right = node->right;
 		Replace(node, node->right);
+
+		if (color == Color::Black)
+			DeleteFixup(right);
 	}
-	else if (node->right == nullptr)
+	else if (node->right == _nil)
 	{
+		Color color = node->color;
+		Node* left = node->left;
 		Replace(node, node->left);
+
+		if (color == Color::Black)
+			DeleteFixup(left);
 	}
 	else
 	{
+		// 다음 데이터 찾기
 		Node* next = Next(node);
 		node->key = next->key;
 		Delete(next);
 	}
 }
 
+void BinarySearchTree::DeleteFixup(Node* node)
+{
+	Node* x = node;
+
+	while (x != _root && x->color == Color::Black)
+	{
+		if (x == x->parent->left)
+		{
+			Node* s = x->parent->right;
+			if (s->color == Color::Red)
+			{
+				s->color = Color::Black;
+				x->parent->color = Color::Red;
+				LeftRotate(x->parent);
+				s = x->parent->right;
+			}
+
+			if (s->left->color == Color::Black && s->right->color == Color::Black)
+			{
+				s->color = Color::Red;
+				x = x->parent; 
+			}
+			else
+			{
+				if (s->right->color == Color::Black)
+				{
+					s->left->color = Color::Black;
+					s->color = Color::Red;
+					RightRotate(s);
+					s = x->parent->right;
+				}
+
+				s->color = x->parent->color;
+				x->parent->color = Color::Black;
+				s->right->color = Color::Black;
+				LeftRotate(x->parent);
+				x = _root;
+			}
+		}
+		else
+		{
+			Node* s = x->parent->left;
+			if (s->color == Color::Red)
+			{
+				s->color = Color::Black;
+				x->parent->color = Color::Red;
+				RightRotate(x->parent);
+				s = x->parent->left;
+			}
+
+			if (s->right->color == Color::Black && s->left->color == Color::Black)
+			{
+				s->color = Color::Red;
+				x = x->parent;
+			}
+			else
+			{
+				if (s->left->color == Color::Black)
+				{
+					s->right->color = Color::Black;
+					s->color = Color::Red;
+					LeftRotate(s);
+					s = x->parent->left;
+				}
+
+				s->color = x->parent->color;
+				x->parent->color = Color::Black;
+				s->left->color = Color::Black;
+				RightRotate(x->parent);
+				x = _root;
+			}
+		}
+	}
+
+	x->color = Color::Black;
+
+}
+
 // u 서브트리를 v 서브트리로 교체 후 delete u
 void BinarySearchTree::Replace(Node* u, Node* v)
 {
 	Node* parent = u->parent;
-	if (parent == nullptr)
+	if (parent == _nil)
 	{
 		_root = v;
 	}
@@ -290,10 +395,7 @@ void BinarySearchTree::Replace(Node* u, Node* v)
 		parent->right = v;
 	}
 
-	if (v)
-	{
-		v->parent = parent;
-	}
+	v->parent = parent;
 
 	delete u;
 }

@@ -49,5 +49,29 @@ int main()
 	bst.Print();
 	this_thread::sleep_for(1s);
 
+	bst.Delete(20);
+	bst.Print();
+	this_thread::sleep_for(1s);
+
+	bst.Delete(30);
+	bst.Print();
+	this_thread::sleep_for(1s);
+
+	bst.Delete(10);
+	bst.Print();
+	this_thread::sleep_for(1s);
+	
+	bst.Delete(25);
+	bst.Print();
+	this_thread::sleep_for(1s);
+
+	bst.Delete(41);
+	bst.Print();
+	this_thread::sleep_for(1s);
+
+	bst.Delete(42);
+	bst.Print();
+	this_thread::sleep_for(1s);
+
 	return 0;
 }
