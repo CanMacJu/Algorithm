@@ -11,7 +11,7 @@
 
 using namespace std;
 
-// 1) 버블 정렬 -> 시간 복잡도 O(N^2)
+// 1) 버블 정렬 O(N^2)
 void BubbleSort(vector<int>& v)
 {
 	const int n = (int)v.size();
@@ -28,7 +28,7 @@ void BubbleSort(vector<int>& v)
 	}
 }
 
-// 2) 선택 정렬
+// 2) 선택 정렬 O(N^2)
 void SelectionSort(vector<int>& v)
 {
 	const int n = (int)v.size();
@@ -48,9 +48,7 @@ void SelectionSort(vector<int>& v)
 	}
 }
 
-
-// 3) 삽입 정렬
-
+// 3) 삽입 정렬 O(N^2)
 void InsertionSort(vector<int>& v)
 {
 	const int n = (int)v.size();
@@ -76,26 +74,155 @@ void InsertionSort(vector<int>& v)
 	}
 }
  
+// 4) 힙 정렬 O(NlogN)
+void HeapSort(vector<int>& v)
+{
+	priority_queue<int, vector<int>, greater<int>> pq;
+
+	//O(NlogN)
+	for (int n : v)
+	{
+		pq.push(n);
+	}
+
+	v.clear();
+
+	// O(NlogN)
+	while (pq.empty() == false)
+	{
+		v.push_back(pq.top());
+		pq.pop();
+	}
+}
+
+// 5) 병합 정렬 
+// 분할 정복 (Divide and Conquer)
+// - 분할
+// - 정복
+// - 결합
+
+vector<int> Merge(vector<int> a, vector<int> b)
+{
+	vector<int> temp;
+
+	int aIndex = 0;
+	int bIndex = 0;
+
+	while (aIndex < a.size() && bIndex < b.size())
+	{
+		if (a[aIndex] <= b[bIndex])
+		{
+			temp.push_back(a[aIndex]);
+			aIndex++;
+		}
+		else
+		{
+			temp.push_back(b[bIndex]);
+			bIndex++;
+		}
+	}
+
+	if (bIndex < b.size())
+	{
+		while (bIndex < b.size())
+		{
+			temp.push_back(b[bIndex]);
+			bIndex++;
+		}
+	}
+	else
+	{
+		while (aIndex < a.size())
+		{
+			temp.push_back(a[aIndex]);
+			aIndex++;
+		}
+	}
+
+	return temp;
+}
+
+
+
+
+void MergeResult(vector<int>& v, int left, int mid, int right)
+{
+	int leftIndex = left;
+	int rightIndex = mid + 1;
+	vector<int> temp;
+
+	while (leftIndex <= mid && rightIndex <= right)
+	{
+		if (v[leftIndex] <= v[rightIndex])
+		{
+			temp.push_back(v[leftIndex]);
+			leftIndex++;
+		}
+		else
+		{
+			temp.push_back(v[rightIndex]);
+			rightIndex++;
+		}
+	}
+
+	if (leftIndex > mid)
+	{
+		while (rightIndex <= right)
+		{
+			temp.push_back(v[rightIndex]);
+			rightIndex++;
+		}
+	}
+	else
+	{
+		while (leftIndex <= mid)
+		{
+			temp.push_back(v[leftIndex]);
+			leftIndex++;
+		}
+	}
+
+	for (int i = 0; i < temp.size(); ++i)
+	{
+		v[i + left] = temp[i];
+	}
+}
+
+void MergeSort(vector<int>& v, int left, int right)
+{
+	if (left >= right)
+	{
+		return;
+	}
+
+	int mid = (left + right) / 2;
+	MergeSort(v, left, mid);
+	MergeSort(v, mid + 1, right);
+
+	MergeResult(v, left, mid, right);
+}
+
+
+
 
 
 int main()
 {
-	vector<int> v = { 5, 3, 10, 1, 9 };
+	vector<int> v;
 
-	for (auto n : v)
+	srand(time(0));
+
+	for (int i = 0; i < 30; ++i)
 	{
-		cout << n << ", ";
+		int randValue = rand() % 100;
+		v.push_back(randValue);
 	}
-	cout << endl;
 
 	//BubbleSort(v);
 	//SelectionSort(v);
-	InsertionSort(v);
-	for (auto n : v)
-	{
-		cout << n << ", ";
-	}
-	cout << endl;
+	//InsertionSort(v);
+	//HeapSort(v);
+	MergeSort(v, 0, v.size() - 1);
 
 	return 0;
 }
