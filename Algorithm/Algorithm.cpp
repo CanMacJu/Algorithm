@@ -11,264 +11,127 @@
 
 using namespace std;
 
-// 1) 버블 정렬 O(N^2)
-void BubbleSort(vector<int>& v)
-{
-	const int n = (int)v.size();
+// 해시 테이블
 
-	for (int i = 0; i < n - 1; ++i)
+// Q map vs hash_map (C++11 표준 unordered_map)
+
+// map: Red-Black Tree
+// - 추가/탐색/삭제 O(logN)
+// 
+// 
+// C# dictionary = C++ map (X)
+// C# dictionary = C++ unordered_map
+// 
+// 
+// hash_map(unordered_map)
+// - 추가/탐색/삭제 O(1)
+//
+// -> 메모리를 내주고 속도를 취한다
+
+// 해시
+// 테이블
+
+
+void TestTable()
+{
+	struct User
 	{
-		for (int j = 0; j < n - i - 1; ++j)
-		{
-			if (v[j] > v[j + 1])
-			{
-				std::swap(v[j], v[j + 1]);
-			}
-		}
-	}
+		int userId = 0;	// 1 - 999
+		string username;
+	};
+
+	vector<User> users;
+	users.resize(1000);
+
+	users[777] = User{ 777,"KimSsenChar" };
+
+	string userName = users[777].username;
+	cout << userName << endl;
 }
 
-// 2) 선택 정렬 O(N^2)
-void SelectionSort(vector<int>& v)
+
+// 보안
+// 
+// 
+// 
+//
+void TestHash()
 {
-	const int n = (int)v.size();
-
-	for (int i = 0; i < n - 1; ++i)
+	struct User
 	{
-		int bestIndex = i;
-		for (int j = i + 1; j < n; ++j)
-		{
-			if (v[j] < v[bestIndex])
-			{
-				bestIndex = j;
-			}
-		}
+		int userId = 0;	// 1 - int32_MAX
+		string username;
+	};
 
-		std::swap(v[i], v[bestIndex]);
+	vector<User> users;
+	users.resize(1000);
+
+	const int userId = 123456789;
+	int key = (userId & 1000);
+	users[key] = User{ userId, "CanMacJu" };
+
+	User& user = users[key];
+	if (user.userId == userId)
+	{
+		string name = users[key].username;
+		cout << name << endl;
 	}
+
+	// 충동 문제
+	// 충돌이 발생한 자리를 대신해서 다른 빈자리를 찾아 나서면 된다
+	// - 선형 조사법 (linear probing)
+	// - 이차 조사법 (quadratic probing)
+
 }
 
-// 3) 삽입 정렬 O(N^2)
-void InsertionSort(vector<int>& v)
+void TestHashTableChaining()
 {
-	const int n = (int)v.size();
-
-	for (int i = 1; i < n; ++i)
+	struct User
 	{
-		int insertData = v[i];
+		int userId = 0;	// 1 - int32_MAX
+		string username;
+	};
 
-		int j;
-		for (j = i - 1; j >= 0; --j)
+	vector<vector<User>> users;
+	users.resize(1000);
+
+	const int userId1 = 123456789;
+	int key = (userId1 % 1000);
+	users[key].push_back(User{ userId1, "CanMacJu" });
+
+	const int userId2 = 789;
+	key = (userId2 % 1000);
+	users[key].push_back(User{ userId2, "KimSsenChar" });
+
+	vector<User>& bucket = users[key];
+	for (User& user : bucket)
+	{
+		if (user.userId == userId1)
 		{
-			if (v[j] > insertData)
-			{
-				v[j + 1] = v[j];
-			}
-			else
-			{
-				break;
-			}
+			string name = user.username;
+			cout << name << endl;
 		}
-
-		v[j + 1] = insertData;
 	}
-}
- 
-// 4) 힙 정렬 O(NlogN)
-void HeapSort(vector<int>& v)
-{
-	priority_queue<int, vector<int>, greater<int>> pq;
-
-	//O(NlogN)
-	for (int n : v)
+		
+	for (User& user : bucket)
 	{
-		pq.push(n);
-	}
-
-	v.clear();
-
-	// O(NlogN)
-	while (pq.empty() == false)
-	{
-		v.push_back(pq.top());
-		pq.pop();
-	}
-}
-
-// 5) 병합 정렬 
-// 분할 정복 (Divide and Conquer)
-// - 분할
-// - 정복
-// - 결합
-
-vector<int> Merge(vector<int> a, vector<int> b)
-{
-	vector<int> temp;
-
-	int aIndex = 0;
-	int bIndex = 0;
-
-	while (aIndex < a.size() && bIndex < b.size())
-	{
-		if (a[aIndex] <= b[bIndex])
+		if (user.userId == userId2)
 		{
-			temp.push_back(a[aIndex]);
-			aIndex++;
-		}
-		else
-		{
-			temp.push_back(b[bIndex]);
-			bIndex++;
+			string name = user.username;
+			cout << name << endl;
 		}
 	}
 
-	if (bIndex < b.size())
-	{
-		while (bIndex < b.size())
-		{
-			temp.push_back(b[bIndex]);
-			bIndex++;
-		}
-	}
-	else
-	{
-		while (aIndex < a.size())
-		{
-			temp.push_back(a[aIndex]);
-			aIndex++;
-		}
-	}
-
-	return temp;
-}
-
-void MergeResult(vector<int>& v, int left, int mid, int right)
-{
-	int leftIndex = left;
-	int rightIndex = mid + 1;
-	vector<int> temp;
-
-	while (leftIndex <= mid && rightIndex <= right)
-	{
-		if (v[leftIndex] <= v[rightIndex])
-		{
-			temp.push_back(v[leftIndex]);
-			leftIndex++;
-		}
-		else
-		{
-			temp.push_back(v[rightIndex]);
-			rightIndex++;
-		}
-	}
-
-	if (leftIndex > mid)
-	{
-		while (rightIndex <= right)
-		{
-			temp.push_back(v[rightIndex]);
-			rightIndex++;
-		}
-	}
-	else
-	{
-		while (leftIndex <= mid)
-		{
-			temp.push_back(v[leftIndex]);
-			leftIndex++;
-		}
-	}
-
-	for (int i = 0; i < temp.size(); ++i)
-	{
-		v[i + left] = temp[i];
-	}
-}
-
-void MergeSort(vector<int>& v, int left, int right)
-{
-	if (left >= right)
-	{
-		return;
-	}
-
-	int mid = (left + right) / 2;
-	MergeSort(v, left, mid);
-	MergeSort(v, mid + 1, right);
-
-	MergeResult(v, left, mid, right);
-}
-
-// 6) 퀵 정렬
-
-int Partition(vector<int>& v, int left, int right)
-{
-	int pivot = v[left];
-	int low = left + 1;
-	int high = right;
-
-	// O(N)
-	while (low <= high)
-	{
-		while (low <= right && pivot >= v[low])
-		{
-			++low;
-		}
-
-		while (high >= left + 1 && pivot <= v[high])
-		{
-			--high;
-		}
-
-		if (low < high)
-		{
-			std::swap(v[low], v[high]);
-		}
-	}
-
-	std::swap(v[left], v[high]);
-
-	return high;
-}
-
-void QuickSort(vector<int>& v, int left, int right)
-{
-	if (left > right)
-	{
-		return;
-	}
-
-	int pivot = Partition(v, left, right);
-
-	QuickSort(v, left, pivot - 1);
-	QuickSort(v, pivot + 1, right);
+	
 }
 
 
 
 int main()
 {
-	vector<int> v;
-
-	srand(time(0));
-
-	for (int i = 0; i < 30; ++i)
-	{
-		int randValue = rand() % 100;
-		v.push_back(randValue);
-	}
-
-	//BubbleSort(v);
-	//SelectionSort(v);
-	//InsertionSort(v);
-	//HeapSort(v);
-	//MergeSort(v, 0, v.size() - 1);
-	QuickSort(v, 0, v.size() - 1);
-
-	for (auto n : v)
-	{
-		cout << n << ", ";
-	}
+	//TestTable();
+	//TestHash();
+	TestHashTableChaining();
 
 	return 0;
 }
