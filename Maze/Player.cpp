@@ -32,7 +32,7 @@ void Player::Update(uint64 deltaTick)
 	else
 	{
 		_sumTick += deltaTick;
-	}
+	} 
 
 	/*if (_pathStack.empty())
 		return;

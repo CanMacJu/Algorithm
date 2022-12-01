@@ -11,127 +11,193 @@
 
 using namespace std;
 
-// 해시 테이블
 
-// Q map vs hash_map (C++11 표준 unordered_map)
+// 그래프/트리 응용
+// 푀소 스패닝 트리
 
-// map: Red-Black Tree
-// - 추가/탐색/삭제 O(logN)
-// 
-// 
-// C# dictionary = C++ map (X)
-// C# dictionary = C++ unordered_map
-// 
-// 
-// hash_map(unordered_map)
-// - 추가/탐색/삭제 O(1)
-//
-// -> 메모리를 내주고 속도를 취한다
-
-// 해시
-// 테이블
+// 상호 베타적 집합 (Disjoint Set)
+// -> 유니온-파인드
 
 
-void TestTable()
+// 시간복잡도: 트리의 높이에 비례
+class NaiveDisjointSet
 {
-	struct User
+public:
+	NaiveDisjointSet(int n) : _parent(n)
 	{
-		int userId = 0;	// 1 - 999
-		string username;
-	};
-
-	vector<User> users;
-	users.resize(1000);
-
-	users[777] = User{ 777,"KimSsenChar" };
-
-	string userName = users[777].username;
-	cout << userName << endl;
-}
-
-
-// 보안
-// 
-// 
-// 
-//
-void TestHash()
-{
-	struct User
-	{
-		int userId = 0;	// 1 - int32_MAX
-		string username;
-	};
-
-	vector<User> users;
-	users.resize(1000);
-
-	const int userId = 123456789;
-	int key = (userId & 1000);
-	users[key] = User{ userId, "CanMacJu" };
-
-	User& user = users[key];
-	if (user.userId == userId)
-	{
-		string name = users[key].username;
-		cout << name << endl;
-	}
-
-	// 충동 문제
-	// 충돌이 발생한 자리를 대신해서 다른 빈자리를 찾아 나서면 된다
-	// - 선형 조사법 (linear probing)
-	// - 이차 조사법 (quadratic probing)
-
-}
-
-void TestHashTableChaining()
-{
-	struct User
-	{
-		int userId = 0;	// 1 - int32_MAX
-		string username;
-	};
-
-	vector<vector<User>> users;
-	users.resize(1000);
-
-	const int userId1 = 123456789;
-	int key = (userId1 % 1000);
-	users[key].push_back(User{ userId1, "CanMacJu" });
-
-	const int userId2 = 789;
-	key = (userId2 % 1000);
-	users[key].push_back(User{ userId2, "KimSsenChar" });
-
-	vector<User>& bucket = users[key];
-	for (User& user : bucket)
-	{
-		if (user.userId == userId1)
+		for (int i = 0; i < n; ++i)
 		{
-			string name = user.username;
-			cout << name << endl;
-		}
-	}
-		
-	for (User& user : bucket)
-	{
-		if (user.userId == userId2)
-		{
-			string name = user.username;
-			cout << name << endl;
+			_parent[i] = i;
 		}
 	}
 
-	
-}
+	int Find(int u)
+	{
+		while (_parent[u] != u)
+		{
+			u = _parent[u];
+		}
 
+		return u;
+
+
+
+		/*if (u == _parent[u])
+		{
+			return u;
+		}
+
+		return Find(_parent[u]);*/
+	}
+
+	void Merge(int u, int v)
+	{
+		u = Find(u);
+		v = Find(v);
+
+		if (u == v)
+			return;
+
+		_parent[u] = v;
+	}
+
+private:
+	vector<int> _parent;
+
+};
+
+// 트리가 한쪽으로 기우는 문제를 해결
+// -> 트리를 합칠때, 높이가 낮은 트리를 높이가 높은 트리에 붙임
+// -> Union-By-Rank
+class DisjointSet1
+{
+public:
+	DisjointSet1(int n) : _parent(n), _rank(n, 1)
+	{
+		for (int i = 0; i < n; ++i)
+		{
+			_parent[i] = i;
+		}
+	}
+
+	int Find(int u)
+	{
+		/*while (_parent[u] != u)
+		{
+			u = _parent[u];
+		}
+
+		return u;*/
+
+		if (u == _parent[u])
+		{
+			return u;
+		}
+
+		return Find(_parent[u]);
+	}
+
+	void Merge(int u, int v)
+	{
+		u = Find(u);
+		v = Find(v);
+
+		if (u == v)
+			return;
+
+		if (_rank[u] > _rank[v])
+		{
+			swap(u, v);
+			// -> _rank[u] <= _rank[v] 보장
+		}
+
+		_parent[u] = v;
+		if (_rank[u] == _rank[v])
+		{
+			_rank[v]++;
+		}
+	}
+
+
+private:
+	vector<int> _parent;
+	vector<int> _rank;
+
+};
+
+class DisjointSet2
+{
+public:
+	DisjointSet2(int n) : _parent(n), _childs(n)
+	{
+		for (int i = 0; i < n; ++i)
+		{
+			_parent[i] = i;
+		}
+	}
+
+	int Find(int u)
+	{
+		while (_parent[u] != u)
+		{
+			u = _parent[u];
+		}
+
+		return u;
+
+		/*if (u == _parent[u])
+		{
+			return u;
+		}
+
+		return Find(_parent[u]);*/
+	}
+
+	void Merge(int u, int v)
+	{
+		u = Find(u);
+		v = Find(v);
+
+		if (u == v)
+			return;
+
+		if (Height(u) <= Height(v))
+		{
+			_parent[u] = v;
+			_childs[v].push_back(u);
+		}
+		else
+		{
+			_parent[v] = u;
+			_childs[u].push_back(v);
+		}
+	}
+
+	int Height(int u)
+	{
+		int maxHeight = 0;
+		for (int n : _childs[u])
+		{
+			if (maxHeight < Height(n))
+			{
+				maxHeight = Height(n);
+			}
+		}
+
+		return maxHeight + 1;
+	}
+
+private:
+	vector<int> _parent;
+	vector<vector<int>> _childs;
+
+};
 
 
 int main()
 {
-	//TestTable();
-	//TestHash();
-	TestHashTableChaining();
+
+
 
 	return 0;
 }
