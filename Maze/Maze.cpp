@@ -35,8 +35,6 @@ int main()
         {
             ConsoleHelper::SetCursorColor(ConsoleColor::WHITE);
 
-            cout << "loopPerFrame: " << loopPerFrame << endl;
-            cout << "spf: " << tick << "ms" << endl;
             tick = 0;
             loopPerFrame = 0;
         }
